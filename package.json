@@ -1,0 +1,8 @@
+{
+  "main": "script.js",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^1.19.0",
+    "dotenv": "^17.2.2"
+  }
+}
