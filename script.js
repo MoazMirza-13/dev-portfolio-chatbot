@@ -5,31 +5,41 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const API_KEY = process.env.GEMINI_API_KEY;
+const GITHUB_USER = process.env.GITHUB_USERNAME;
 
-// Check if the API key is set
-if (!API_KEY) {
-  console.error("GEMINI_API_KEY is not set. Please add it to your .env file.");
+if (!API_KEY || !GITHUB_USER) {
+  console.error("Missing GEMINI_API_KEY or GITHUB_USERNAME in .env file.");
   process.exit(1);
 }
 
 // Initialize the Google Generative AI client
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-// Define the name of the model you want to use
+// model
 const MODEL_NAME = "gemini-2.5-flash-lite";
 
+const firstStaticPrompt = `You are an API endpoint generator. Always respond ONLY with raw JSON (no code fences, no explanation).
+Use the variable ${GITHUB_USER} instead of hardcoding my username.
+Return in the format: { "github_api_endpoint": "..." }`;
+
 // static prompt
-const prompt = "a story about an idiot in one line";
+const user_prompt = " Give me your 4 recent project you’re working on";
+
+const firstContent = firstStaticPrompt + "\n\n" + user_prompt;
 
 async function run() {
   try {
     const response = await ai.models.generateContent({
       model: MODEL_NAME,
-      contents: prompt,
+      contents: firstContent,
     });
 
+    // get the endpoint using the first call
     const generatedText = response.candidates[0].content.parts[0].text;
-    console.log("🚀 ~ run ~ generatedText:", generatedText);
+    const parsed = JSON.parse(generatedText);
+    const endpoint = parsed.github_api_endpoint;
+
+    console.log("🚀 ~ run ~ endpoint:", endpoint);
   } catch (error) {
     console.error("An error occurred while connecting to Gemini:", error);
   }
