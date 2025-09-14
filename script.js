@@ -1,6 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
-import { simplifyRepo, fetchGitHubData, fetchReadme } from "./utils.js";
+import {
+  simplifyRepo,
+  fetchGitHubData,
+  fetchReadme,
+  cleanAIResponse,
+} from "./utils.js";
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +33,7 @@ const PERSONAL_INFO = {
   contact: "blahblah.com",
   bio: "Passionate developer who loves to do side projects",
   interests: ["Web Development", "killing humans :)", "Open Source"],
+  git_username: GITHUB_USER,
 };
 
 // Instruction prompt for first call
@@ -57,7 +63,7 @@ Format strictly like this:
 }`;
 
 // Example user input
-const user_prompt = "how many projects you have";
+const user_prompt = "give me your github profile url and 6 recent projects";
 
 async function run() {
   try {
@@ -68,7 +74,9 @@ async function run() {
       contents: firstPrompt,
     });
 
-    const parsed = JSON.parse(response.text);
+    const rawText = response.text;
+    const cleanedText = cleanAIResponse(rawText);
+    const parsed = JSON.parse(cleanedText);
     const action = parsed.action;
     const endpoints = parsed.github_api_endpoints || [];
     const reason = parsed.reason;
@@ -77,7 +85,18 @@ async function run() {
 
     // Handle error action
     if (action === "error") {
-      console.log("⚠️ Gemini flagged error:", reason);
+      const dynamicErrorPrompt = `
+You are a helpful assistant. The user asked something outside scope:
+"${reason}"
+
+Generate a friendly, natural fallback response telling them you can only answer about ${GITHUB_USER}'s skills, projects, or experience. Suggest what they can ask instead.
+`;
+
+      const fallbackAnswer = await ai.models.generateContent({
+        model: MODEL_NAME,
+        contents: dynamicErrorPrompt,
+      });
+      console.log("✅ Final error Action answer:", fallbackAnswer.text);
       return;
     }
 
@@ -85,7 +104,7 @@ async function run() {
     if (action === "info") {
       const infoPrompt = `The user asked: ${user_prompt}
 Here is my stored personal info: ${JSON.stringify(PERSONAL_INFO, null, 2)}
-Answer naturally using only this info.`;
+Answer naturally using this info.`;
 
       const infoResponse = await ai.models.generateContent({
         model: MODEL_NAME,
@@ -124,7 +143,7 @@ Answer naturally using only this info.`;
     // Second Gemini call
     const secondPrompt = `The user asked: ${user_prompt}
 Here is the relevant data: ${JSON.stringify(allData, null, 2)}
-Answer the user's question in natural language using only this data.`;
+Answer the user's question in natural language using only this data. And provide URLs if possible`;
 
     const secondResponse = await ai.models.generateContent({
       model: MODEL_NAME,
