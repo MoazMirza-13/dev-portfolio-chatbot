@@ -1,3 +1,4 @@
+// Simplify repo object
 export function simplifyRepo(repo) {
   return {
     name: repo.name,
@@ -12,4 +13,29 @@ export function simplifyRepo(repo) {
     forks_count: repo.forks_count,
     visibility: repo.visibility,
   };
+}
+
+// Fetch GitHub data from an endpoint
+export async function fetchGitHubData(endpoint) {
+  const res = await fetch(endpoint, {
+    headers: {
+      "User-Agent": "node.js",
+      Accept: "application/vnd.github.v3+json",
+    },
+  });
+  if (!res.ok)
+    throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+// Fetch README.md for a repo
+export async function fetchReadme(username, repoName) {
+  const url = `https://raw.githubusercontent.com/${username}/${repoName}/main/README.md`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.text();
+  } catch (err) {
+    return null;
+  }
 }
