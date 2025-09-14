@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import { simplifyRepo } from "./utils.js";
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -40,8 +41,28 @@ async function run() {
     const endpoint = parsed.github_api_endpoint;
 
     console.log("🚀 ~ run ~ endpoint:", endpoint);
+
+    //  Fetch data from GitHub
+    const githubResponse = await fetch(endpoint, {
+      headers: {
+        "User-Agent": "node.js",
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+
+    if (!githubResponse.ok) {
+      throw new Error(
+        `GitHub API error: ${githubResponse.status} ${githubResponse.statusText}`
+      );
+    }
+
+    const data = await githubResponse.json();
+
+    // filter necessary data
+    const simplifiedRepos = data.map((repo) => simplifyRepo(repo));
+    console.log("🚀 ~ run ~ simplifiedRepos:", simplifiedRepos);
   } catch (error) {
-    console.error("An error occurred while connecting to Gemini:", error);
+    console.error("❌ Error:", error);
   }
 }
 
