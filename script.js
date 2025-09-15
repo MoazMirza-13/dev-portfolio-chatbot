@@ -1,11 +1,6 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
-import {
-  simplifyRepo,
-  fetchGitHubData,
-  fetchReadme,
-  cleanAIResponse,
-} from "./utils.js";
+import { simplifyRepo, fetchGitHubData, fetchReadme } from "./utils.js";
 
 // Load environment variables
 dotenv.config();
@@ -19,7 +14,7 @@ if (!API_KEY || !GITHUB_USER) {
 }
 
 // Initialize Gemini
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = new GoogleGenAI(API_KEY);
 const MODEL_NAME = "gemini-2.5-flash-lite";
 
 // Dummy personal info
@@ -36,138 +31,208 @@ const PERSONAL_INFO = {
   git_username: GITHUB_USER,
 };
 
-// Instruction prompt for first call
-const instructionPrompt = `You are an API task planner.
-Always respond ONLY with raw JSON (NO EXPLANATIONS, NO CODE FENCES).
-Decide the correct action based on the user query.
+// Function declarations following the official Google format
+const getPersonalInfoDeclaration = {
+  name: "getPersonalInfo",
+  description:
+    "Get personal information about the developer including bio, skills, experience, education, etc.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+    required: [],
+  },
+};
 
-Actions:
-- "info": if the question is about personal info (bio, skills, experience, etc).
-- "github_api": if the question needs all repos (languages, recent projects, etc).
-- "repo_details": if the question is about one specific repo (description, README, etc).
-- "error": if the request cannot be understood or is invalid.
+const getAllReposDeclaration = {
+  name: "getAllRepos",
+  description:
+    "Get all GitHub repositories for the user to show recent projects, languages used, etc.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+    required: [],
+  },
+};
 
-Rules:
-- You can return more than one endpoint if needed.
-- If action is "info", set "github_api_endpoints": [].
-- If action is "error", set "github_api_endpoints": [] and explain in "reason".
+const getRepoDetailsDeclaration = {
+  name: "getRepoDetails",
+  description:
+    "Get detailed information about a specific repository including README content.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      repoName: {
+        type: Type.STRING,
+        description: "The name of the repository to get details for",
+      },
+    },
+    required: ["repoName"],
+  },
+};
 
-Github Username:
-- ${GITHUB_USER}
+// Function implementations
+async function getPersonalInfo() {
+  return PERSONAL_INFO;
+}
 
-Format strictly like this:
-{
-  "action": "info | github_api | repo_details | error",
-  "github_api_endpoints": ["endpoint1", "endpoint2"],
-  "reason": "short explanation"
-}`;
+async function getAllRepos() {
+  try {
+    const data = await fetchGitHubData(`users/${GITHUB_USER}/repos`);
+    return data.map((repo) => simplifyRepo(repo));
+  } catch (error) {
+    throw new Error(`Failed to fetch repositories: ${error.message}`);
+  }
+}
+
+async function getRepoDetails(repoName) {
+  try {
+    const repo = await fetchGitHubData(`repos/${GITHUB_USER}/${repoName}`);
+    const simplified = simplifyRepo(repo);
+    simplified.readme = await fetchReadme(GITHUB_USER, repoName);
+    return simplified;
+  } catch (error) {
+    throw new Error(`Failed to fetch repository details: ${error.message}`);
+  }
+}
+
+// Function dispatcher
+async function executeFunction(functionCall) {
+  const { name, args } = functionCall;
+
+  switch (name) {
+    case "getPersonalInfo":
+      return await getPersonalInfo();
+    case "getAllRepos":
+      return await getAllRepos();
+    case "getRepoDetails":
+      return await getRepoDetails(args.repoName);
+    default:
+      throw new Error(`Unknown function: ${name}`);
+  }
+}
 
 // Example user input
-const user_prompt = "tell me about your elengencia project";
+const user_prompt = "in which project you made the recent updates";
 
 async function run() {
   try {
-    // First Gemini call
-    const firstPrompt = instructionPrompt + "\n\n User asked: " + user_prompt;
+    // Generation config with function declarations
+    const config = {
+      tools: [
+        {
+          functionDeclarations: [
+            getPersonalInfoDeclaration,
+            getAllReposDeclaration,
+            getRepoDetailsDeclaration,
+          ],
+        },
+      ],
+    };
+
+    // Initial user message with system context
+    const systemMessage = `You are a helpful assistant that can answer questions about ${GITHUB_USER}'s professional background, skills, and GitHub projects.
+
+You have access to these functions:
+- getPersonalInfo: For questions about personal info, bio, skills, experience, education, etc.
+- getAllRepos: For questions about all repositories, recent projects, languages used, etc.
+- getRepoDetails: For questions about a specific repository by name.
+
+Always provide natural, conversational responses. Include URLs when available.
+
+If a question is outside your scope, politely explain that you can only help with questions about their skills, projects, or experience.`;
+
+    let contents = [
+      {
+        role: "user",
+        parts: [{ text: `${systemMessage}\n\nUser question: ${user_prompt}` }],
+      },
+    ];
+
+    // Send request with function declarations
     const response = await ai.models.generateContent({
       model: MODEL_NAME,
-      contents: firstPrompt,
+      contents: contents,
+      config: config,
     });
 
-    const rawText = response.text;
-    const cleanedText = cleanAIResponse(rawText);
-    const parsed = JSON.parse(cleanedText);
-    const action = parsed.action;
-    const endpoints = parsed.github_api_endpoints || [];
-    const reason = parsed.reason;
+    // Check if the model wants to call functions
+    if (response.functionCalls && response.functionCalls.length > 0) {
+      console.log("🔧 Function calls detected:", response.functionCalls);
 
-    console.log("🚀 ~ First Gemini decision:", parsed);
+      // Execute each function call
+      for (const functionCall of response.functionCalls) {
+        try {
+          console.log(`🔧 Executing ${functionCall.name}...`);
 
-    // Handle error action
-    if (action === "error") {
-      const dynamicErrorPrompt = `
-You are a helpful assistant. The user asked something outside scope:
-"${reason}"
+          // Execute the function
+          const result = await executeFunction(functionCall);
+          console.log(`✅ ${functionCall.name} executed successfully`);
 
-Generate a friendly, natural fallback response telling them you can only answer about ${GITHUB_USER}'s skills, projects, or experience. Suggest what they can ask instead.
-`;
+          // Create function response part
+          const functionResponsePart = {
+            name: functionCall.name,
+            response: { result },
+          };
 
-      const fallbackAnswer = await ai.models.generateContent({
-        model: MODEL_NAME,
-        contents: dynamicErrorPrompt,
-      });
-      console.log("✅ Final error Action answer:", fallbackAnswer.text);
-      return;
-    }
+          // Append function call and result to contents
+          contents.push(response.candidates[0].content);
+          contents.push({
+            role: "user",
+            parts: [{ functionResponse: functionResponsePart }],
+          });
+        } catch (error) {
+          console.log(`❌ ${functionCall.name} failed:`, error.message);
 
-    // Handle personal info
-    if (action === "info") {
-      const infoPrompt = `The user asked: ${user_prompt}
-Here is my stored personal info: ${JSON.stringify(PERSONAL_INFO, null, 2)}
-Answer naturally using this info.`;
+          // Add error response
+          const errorResponsePart = {
+            name: functionCall.name,
+            response: { error: error.message },
+          };
 
-      const infoResponse = await ai.models.generateContent({
-        model: MODEL_NAME,
-        contents: infoPrompt,
-      });
-      console.log("✅ Final Answer:", infoResponse.text);
-      return;
-    }
-
-    // Handle GitHub-related actions
-    let allData = [];
-    let fetchError = null;
-
-    for (const endpoint of endpoints) {
-      try {
-        const data = await fetchGitHubData(endpoint);
-        // Repo or repo list
-        if (Array.isArray(data)) {
-          allData.push(...data.map((repo) => simplifyRepo(repo)));
-        } else {
-          const simplified = simplifyRepo(data);
-          // Add README if repo_details
-          if (action === "repo_details") {
-            simplified.readme = await fetchReadme(GITHUB_USER, simplified.name);
-          }
-          allData.push(simplified);
+          contents.push(response.candidates[0].content);
+          contents.push({
+            role: "user",
+            parts: [{ functionResponse: errorResponsePart }],
+          });
         }
-      } catch (err) {
-        fetchError = err.message;
-        console.log(`❌ Failed fetching ${endpoint}:`, err.message);
       }
-    }
 
-    if (!allData.length) {
-      const dynamicErrorPrompt = `
-You are a helpful assistant. The user asked something outside scope:
-"${fetchError || reason}"
-
-Generate a friendly, natural fallback response telling them they may have typed the repo name wrong. Suggest checking the spelling or asking about other repos from ${GITHUB_USER}.
-`;
-
-      const fallbackAnswer = await ai.models.generateContent({
+      // Get the final response from the model
+      const finalResponse = await ai.models.generateContent({
         model: MODEL_NAME,
-        contents: dynamicErrorPrompt,
+        contents: contents,
+        config: config,
       });
 
-      console.log("✅ Final error Action answer:", fallbackAnswer.text);
-      return;
+      console.log("✅ Final Answer:", finalResponse.text);
+    } else {
+      // No function calls needed, return direct response
+      console.log("✅ Final Answer:", response.text);
     }
-
-    // Second Gemini call
-    const secondPrompt = `The user asked: ${user_prompt}
-Here is the relevant data: ${JSON.stringify(allData, null, 2)}
-Answer the user's question in natural language using only this data. And provide URLs if possible`;
-
-    const secondResponse = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: secondPrompt,
-    });
-
-    console.log("✅ Final Answer:", secondResponse.text);
   } catch (error) {
-    console.error("❌ Fatal Error:", error.message);
+    console.error("❌ Fatal Error:", error);
+
+    // Fallback response similar to your original approach
+    try {
+      const fallbackResponse = await ai.models.generateContent({
+        model: MODEL_NAME,
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: `The user asked: "${user_prompt}"\n\nGenerate a friendly response explaining that you can only answer questions about ${GITHUB_USER}'s skills, projects, or experience. Suggest what they can ask instead.`,
+              },
+            ],
+          },
+        ],
+      });
+      console.log("✅ Fallback Answer:", fallbackResponse.text);
+    } catch (fallbackError) {
+      console.log(
+        `✅ Fallback Answer: I'm sorry, I can only help with questions about ${GITHUB_USER}'s skills, projects, or experience. Try asking about skills, recent projects, or specific repositories!`
+      );
+    }
   }
 }
 
