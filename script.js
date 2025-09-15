@@ -63,7 +63,7 @@ Format strictly like this:
 }`;
 
 // Example user input
-const user_prompt = "give me your github profile url and 6 recent projects";
+const user_prompt = "tell me about your elengencia project";
 
 async function run() {
   try {
@@ -116,6 +116,8 @@ Answer naturally using this info.`;
 
     // Handle GitHub-related actions
     let allData = [];
+    let fetchError = null;
+
     for (const endpoint of endpoints) {
       try {
         const data = await fetchGitHubData(endpoint);
@@ -131,12 +133,25 @@ Answer naturally using this info.`;
           allData.push(simplified);
         }
       } catch (err) {
+        fetchError = err.message;
         console.log(`❌ Failed fetching ${endpoint}:`, err.message);
       }
     }
 
     if (!allData.length) {
-      console.log("⚠️ No data returned from GitHub.");
+      const dynamicErrorPrompt = `
+You are a helpful assistant. The user asked something outside scope:
+"${fetchError || reason}"
+
+Generate a friendly, natural fallback response telling them they may have typed the repo name wrong. Suggest checking the spelling or asking about other repos from ${GITHUB_USER}.
+`;
+
+      const fallbackAnswer = await ai.models.generateContent({
+        model: MODEL_NAME,
+        contents: dynamicErrorPrompt,
+      });
+
+      console.log("✅ Final error Action answer:", fallbackAnswer.text);
       return;
     }
 

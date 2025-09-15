@@ -17,14 +17,24 @@ export function simplifyRepo(repo) {
 
 // Fetch GitHub data from an endpoint
 export async function fetchGitHubData(endpoint) {
-  const res = await fetch(endpoint, {
+  const url = endpoint.startsWith("http")
+    ? endpoint
+    : `https://api.github.com/${endpoint}`;
+
+  const res = await fetch(url, {
     headers: {
       "User-Agent": "node.js",
       Accept: "application/vnd.github.v3+json",
     },
   });
-  if (!res.ok)
+
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error(`Repo not found at ${url}. Maybe a typo in the name?`);
+    }
     throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
+  }
+
   return res.json();
 }
 
