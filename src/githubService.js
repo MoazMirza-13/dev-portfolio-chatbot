@@ -1,4 +1,3 @@
-// Simplify repo object
 export function simplifyRepo(repo) {
   return {
     name: repo.name,
@@ -15,7 +14,6 @@ export function simplifyRepo(repo) {
   };
 }
 
-// Fetch GitHub data from an endpoint
 export async function fetchGitHubData(endpoint) {
   const url = endpoint.startsWith("http")
     ? endpoint
@@ -38,21 +36,13 @@ export async function fetchGitHubData(endpoint) {
   return res.json();
 }
 
-// Fetch README.md for a repo
 export async function fetchReadme(username, repoName) {
   const url = `https://raw.githubusercontent.com/${username}/${repoName}/main/README.md`;
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
     return await res.text();
-  } catch (err) {
+  } catch {
     return null;
   }
-}
-
-export function cleanAIResponse(text) {
-  return text
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
-    .trim();
 }
