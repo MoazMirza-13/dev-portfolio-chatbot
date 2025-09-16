@@ -14,10 +14,29 @@ export const getPersonalInfoDeclaration = {
 export const getAllReposDeclaration = {
   name: "getAllRepos",
   description:
-    "Get all GitHub repositories for the user (recent projects, languages used, etc).",
+    "Get all GitHub repositories for the user. Supports filtering and sorting (e.g., latest, most stars, most forks). And optionally including README content.",
   parameters: {
     type: Type.OBJECT,
-    properties: {},
+    properties: {
+      sortBy: {
+        type: Type.STRING,
+        description:
+          "Sort criterion: 'stars', 'forks', 'updated', 'created'. Defaults to none.",
+      },
+      order: {
+        type: Type.STRING,
+        description: "Sort order: 'asc' or 'desc'. Defaults to 'desc'.",
+      },
+      limit: {
+        type: Type.NUMBER,
+        description: "Maximum number of repositories to return.",
+      },
+      includeReadme: {
+        type: Type.BOOLEAN,
+
+        description: "Whether to include README content for each repo.",
+      },
+    },
     required: [],
   },
 };
@@ -25,13 +44,18 @@ export const getAllReposDeclaration = {
 export const getRepoDetailsDeclaration = {
   name: "getRepoDetails",
   description:
-    "Get detailed information about a specific repository including README content.",
+    "Get detailed information about a specific repository including README content if requested.",
   parameters: {
     type: Type.OBJECT,
     properties: {
       repoName: {
         type: Type.STRING,
         description: "The name of the repository to get details for",
+      },
+      includeReadme: {
+        type: Type.BOOLEAN,
+
+        description: "Whether to include README content for this repo.",
       },
     },
     required: ["repoName"],

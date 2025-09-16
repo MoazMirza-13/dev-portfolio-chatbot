@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { API_KEY, MODEL_NAME, GITHUB_USER } from "../config.js";
 import { functionDeclarations } from "./functionDefs.js";
 import { executeFunction } from "./functionExec.js";
+import { extractText } from "./utils.js";
 
 const ai = new GoogleGenAI(API_KEY);
 
@@ -44,6 +45,10 @@ If a question is outside your scope, politely explain that you can only help wit
             role: "user",
             parts: [
               {
+                text: `Here is the raw data returned from function "${functionCall.name}". 
+Summarize and explain technologies used, and key features it in a helpful, conversational way for a non-technical person.`,
+              },
+              {
                 functionResponse: {
                   name: functionCall.name,
                   response: { result },
@@ -74,12 +79,14 @@ If a question is outside your scope, politely explain that you can only help wit
         config,
       });
 
-      return finalResponse.text;
+      // 🟢 FIX: Check for text safely
+      return extractText(finalResponse);
     }
 
     // No function calls → direct answer
-    return response.text;
+    return extractText(response);
   } catch (error) {
+    console.log("🚀 ~ handleUserQuery ~ error:", error);
     // Step 4: Fallback answer
     return `I'm sorry, I can only help with questions about ${GITHUB_USER}'s skills, projects, or experience. Try asking about skills, recent projects, or specific repositories!`;
   }
