@@ -1,5 +1,11 @@
 import { PERSONAL_INFO, GITHUB_USER } from "../config.js";
-import { simplifyRepo, fetchGitHubData, fetchReadme } from "./githubService.js";
+import {
+  simplifyRepo,
+  fetchGitHubData,
+  fetchReadme,
+  suggestSimilarRepo,
+} from "./githubService.js";
+import { limitedText } from "./utils.js";
 
 async function getPersonalInfo() {
   return PERSONAL_INFO;
@@ -8,7 +14,7 @@ async function getPersonalInfo() {
 async function getAllRepos({
   sortBy,
   order = "desc",
-  limit,
+  limit = 25,
   includeReadme,
 } = {}) {
   const data = await fetchGitHubData(`users/${GITHUB_USER}/repos`);
@@ -18,7 +24,7 @@ async function getAllRepos({
     const keyMap = {
       stars: "stargazers_count",
       forks: "forks_count",
-      updated: "updated_at",
+      updated: "pushed_at",
       created: "created_at",
     };
 
@@ -32,12 +38,22 @@ async function getAllRepos({
     }
   }
 
-  if (limit) repos = repos.slice(0, limit);
+  if (limit && repos.length > limit) {
+    repos = repos.slice(0, limit);
+  }
+
+  // Add a notice if too many
+  if (data.length > limit) {
+    repos.push({
+      note: `⚠️ There are more but Showing ${limit} of ${data.length} repositories.`,
+    });
+  }
 
   // 🔹 add readme if requested
   if (includeReadme) {
     for (const repo of repos) {
-      repo.readme = await fetchReadme(GITHUB_USER, repo.name);
+      let raw = await fetchReadme(GITHUB_USER, repoName, repo.default_branch);
+      repo.readme = limitedText(raw);
     }
   }
 
@@ -45,14 +61,22 @@ async function getAllRepos({
 }
 
 async function getRepoDetails({ repoName, includeReadme } = {}) {
-  const repo = await fetchGitHubData(`repos/${GITHUB_USER}/${repoName}`);
-  const simplified = simplifyRepo(repo);
+  try {
+    const repo = await fetchGitHubData(`repos/${GITHUB_USER}/${repoName}`);
+    const simplified = simplifyRepo(repo);
 
-  if (includeReadme) {
-    simplified.readme = await fetchReadme(GITHUB_USER, repoName);
+    if (includeReadme) {
+      let raw = await fetchReadme(GITHUB_USER, repoName, repo.default_branch);
+      simplified.readme = limitedText(raw);
+    }
+
+    return simplified;
+  } catch (error) {
+    if (error.message.includes("not found")) {
+      return await suggestSimilarRepo(repoName, GITHUB_USER);
+    }
+    throw error;
   }
-
-  return simplified;
 }
 
 export async function executeFunction(functionCall) {

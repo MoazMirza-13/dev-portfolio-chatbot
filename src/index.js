@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { API_KEY, MODEL_NAME, GITHUB_USER } from "../config.js";
 import { functionDeclarations } from "./functionDefs.js";
 import { executeFunction } from "./functionExec.js";
-import { extractText } from "./utils.js";
+import { extractText, safeGenerateContent } from "./utils.js";
 
 const ai = new GoogleGenAI(API_KEY);
 
@@ -28,7 +28,7 @@ If a question is outside your scope, politely explain that you can only help wit
     const config = { tools: [{ functionDeclarations }] };
 
     // Step 1: Ask AI
-    const response = await ai.models.generateContent({
+    const response = await safeGenerateContent(ai, {
       model: MODEL_NAME,
       contents,
       config,
@@ -73,7 +73,7 @@ Summarize and explain technologies used, and key features it in a helpful, conve
       }
 
       // Step 3: Final AI response
-      const finalResponse = await ai.models.generateContent({
+      const finalResponse = await safeGenerateContent(ai, {
         model: MODEL_NAME,
         contents,
         config,
@@ -88,6 +88,6 @@ Summarize and explain technologies used, and key features it in a helpful, conve
   } catch (error) {
     console.log("🚀 ~ handleUserQuery ~ error:", error);
     // Step 4: Fallback answer
-    return `I'm sorry, I can only help with questions about ${GITHUB_USER}'s skills, projects, or experience. Try asking about skills, recent projects, or specific repositories!`;
+    return `⚠️ Sorry, I couldn’t process that request right now. Try a different question or the model might get overloaded. Please try again later.`;
   }
 }
