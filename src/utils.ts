@@ -1,4 +1,6 @@
-export function extractText(response) {
+import type { GenerateContentResponse, GoogleGenAI } from "@google/genai";
+
+export function extractText(response: GenerateContentResponse) {
   if (response.text) return response.text;
   if (response.candidates?.length) {
     return response.candidates
@@ -8,7 +10,7 @@ export function extractText(response) {
   return "";
 }
 
-export function limitedText(readme, maxLength = 2000) {
+export function limitedText(readme: string, maxLength = 2000) {
   if (!readme) return "No README available.";
 
   // Remove badges and images
@@ -22,11 +24,15 @@ export function limitedText(readme, maxLength = 2000) {
   return clean;
 }
 
-export async function safeGenerateContent(ai, options) {
+export async function safeGenerateContent(
+  ai: GoogleGenAI,
+  options: Parameters<GoogleGenAI["models"]["generateContent"]>[0] // infer first parameter type
+) {
   try {
     return await ai.models.generateContent(options);
   } catch (err) {
-    console.error("Gemini error:", err.message);
+    const error = err as Error;
+    console.error("Gemini error:", error.message);
     return {
       candidates: [
         {
