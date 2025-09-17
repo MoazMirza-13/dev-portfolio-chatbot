@@ -10,6 +10,8 @@ if (!API_KEY || !GITHUB_USER) {
 
 export const MODEL_NAME = "gemini-2.5-flash-lite";
 
+export const MODEL_TONE = "default"; // eg: professional, funny, polite, friendly, moody or default
+
 export const PERSONAL_INFO = {
   name: "Moaz",
   title: "Full Stack Developer",

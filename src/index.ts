@@ -1,5 +1,5 @@
 import { GenerateContentResponse, GoogleGenAI } from "@google/genai";
-import { API_KEY, MODEL_NAME, GITHUB_USER } from "../config";
+import { API_KEY, MODEL_NAME, GITHUB_USER, MODEL_TONE } from "../config";
 import { functionDeclarations } from "./functionDefs";
 import { executeFunction } from "./functionExec";
 import { extractText, safeGenerateContent } from "./utils";
@@ -9,6 +9,13 @@ const ai = new GoogleGenAI({ apiKey: API_KEY });
 export async function handleUserQuery(userPrompt: string) {
   try {
     const systemMessage = `You are a helpful assistant that can answer questions about ${GITHUB_USER}'s professional background, skills, and GitHub projects.
+
+    Important instructions:
+- Always interpret "you", "your", or "yours" as referring to ${GITHUB_USER}, not yourself.
+- Every response should mention "${GITHUB_USER}" explicitly at least once.
+- Sometimes when possible, include a direct GitHub URL (e.g., https://github.com/${GITHUB_USER} or a repo link).
+- Your response style should be: ${MODEL_TONE}.
+
 
 You have access to these functions:
 - getPersonalInfo: For questions about personal info, bio, skills, experience, education, etc.
