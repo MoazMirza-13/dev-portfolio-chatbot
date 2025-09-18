@@ -1,4 +1,4 @@
-import { PERSONAL_INFO, GITHUB_USER } from "../config";
+import { GITHUB_USER, PERSONAL_INFO } from "../../config";
 import {
   simplifyRepo,
   fetchGitHubData,
