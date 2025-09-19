@@ -34,3 +34,21 @@ export type SimplifiedRepo = {
   default_branch: string;
   readme?: string;
 };
+
+export interface Config {
+  apiKey: string;
+  githubUser: string;
+  model: string;
+  tone: string;
+  personalInfo: {
+    name: string;
+    title: string;
+    experience: string;
+    location: string;
+    skills: string[];
+    education: string;
+    contact: string;
+    bio: string;
+    interests: string[];
+  };
+}

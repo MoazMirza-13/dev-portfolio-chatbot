@@ -1,4 +1,3 @@
-import { GITHUB_USER, PERSONAL_INFO } from "../../config";
 import {
   simplifyRepo,
   fetchGitHubData,
@@ -6,6 +5,7 @@ import {
   suggestSimilarRepo,
 } from "./githubService";
 import {
+  Config,
   FunctionCall,
   GetAllReposOptions,
   GetAllReposResult,
@@ -14,17 +14,22 @@ import {
 } from "./types";
 import { limitedText } from "./utils";
 
-async function getPersonalInfo() {
-  return PERSONAL_INFO;
+async function getPersonalInfo(personalInfo: Config["personalInfo"]) {
+  return personalInfo;
 }
 
-async function getAllRepos({
-  sortBy = null,
-  order = "desc",
-  limit = 25,
-  includeReadme = false,
-}: GetAllReposOptions = {}): Promise<GetAllReposResult> {
-  const data = await fetchGitHubData(`users/${GITHUB_USER}/repos`);
+async function getAllRepos(
+  portfolio_config: Config,
+  {
+    sortBy = null,
+    order = "desc",
+    limit = 25,
+    includeReadme = false,
+  }: GetAllReposOptions = {}
+): Promise<GetAllReposResult> {
+  const data = await fetchGitHubData(
+    `users/${portfolio_config.githubUser}/repos`
+  );
   let repos: SimplifiedRepo[] = data.map(simplifyRepo);
 
   const keyMap = {
@@ -57,10 +62,10 @@ async function getAllRepos({
     notice = `⚠️ There are more but Showing ${limit} of ${data.length} repositories.`;
   }
 
-  if (includeReadme && GITHUB_USER) {
+  if (includeReadme && portfolio_config.githubUser) {
     for (const repo of repos) {
       const raw = await fetchReadme(
-        GITHUB_USER,
+        portfolio_config.githubUser,
         repo.name,
         repo.default_branch
       );
@@ -71,16 +76,22 @@ async function getAllRepos({
   return { repos, notice };
 }
 
-async function getRepoDetails({
-  repoName,
-  includeReadme = false,
-}: GetRepoDetailsOptions) {
+async function getRepoDetails(
+  portfolio_config: Config,
+  { repoName, includeReadme = false }: GetRepoDetailsOptions
+) {
   try {
-    const repo = await fetchGitHubData(`repos/${GITHUB_USER}/${repoName}`);
+    const repo = await fetchGitHubData(
+      `repos/${portfolio_config.githubUser}/${repoName}`
+    );
     const simplified = simplifyRepo(repo);
 
-    if (includeReadme && GITHUB_USER) {
-      let raw = await fetchReadme(GITHUB_USER, repoName, repo.default_branch);
+    if (includeReadme && portfolio_config.githubUser) {
+      let raw = await fetchReadme(
+        portfolio_config.githubUser,
+        repoName,
+        repo.default_branch
+      );
       if (raw) {
         simplified.readme = limitedText(raw);
       }
@@ -89,26 +100,29 @@ async function getRepoDetails({
     return simplified;
   } catch (error) {
     if (
-      GITHUB_USER &&
+      portfolio_config.githubUser &&
       error instanceof Error &&
       error.message.includes("not found")
     ) {
-      return await suggestSimilarRepo(repoName, GITHUB_USER);
+      return await suggestSimilarRepo(repoName, portfolio_config.githubUser);
     }
     throw error;
   }
 }
 
-export async function executeFunction(functionCall: FunctionCall) {
+export async function executeFunction(
+  functionCall: FunctionCall,
+  portfolio_config: Config
+) {
   switch (functionCall.name) {
     case "getPersonalInfo":
-      return await getPersonalInfo();
+      return await getPersonalInfo(portfolio_config.personalInfo);
 
     case "getAllRepos":
-      return await getAllRepos(functionCall.args || {});
+      return await getAllRepos(portfolio_config, functionCall.args || {});
 
     case "getRepoDetails":
-      return await getRepoDetails(functionCall.args);
+      return await getRepoDetails(portfolio_config, functionCall.args);
 
     default:
       throw new Error(`Unknown function: ${(functionCall as any).name}`);

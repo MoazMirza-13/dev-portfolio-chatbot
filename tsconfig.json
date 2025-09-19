@@ -11,6 +11,6 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "config.ts"],
+  "include": ["src", "portfolio_config.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

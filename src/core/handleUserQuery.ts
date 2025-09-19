@@ -1,26 +1,22 @@
 import { GenerateContentResponse, GoogleGenAI } from "@google/genai";
-import {
-  API_KEY,
-  MODEL_NAME,
-  GITHUB_USER,
-  MODEL_TONE,
-  PERSONAL_INFO,
-} from "../../config";
 import { functionDeclarations } from "./functionDefs";
 import { extractText, safeGenerateContent } from "./utils";
 import { executeFunction } from "./functionExec";
+import { Config } from "./types";
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
-
-export async function handleUserQuery(userPrompt: string) {
+export async function handleUserQuery(
+  userPrompt: string,
+  portfolio_config: Config
+) {
+  const ai = new GoogleGenAI({ apiKey: portfolio_config.apiKey });
   try {
-    const systemMessage = `You are a helpful assistant that can answer questions about ${GITHUB_USER}'s professional background, skills, and GitHub projects.
+    const systemMessage = `You are a helpful assistant that can answer questions about ${portfolio_config.githubUser}'s professional background, skills, and GitHub projects.
 
     Important instructions:
-- Always interpret "you", "your", or "yours" as referring to ${GITHUB_USER}, not yourself.
-- Every response should mention "${GITHUB_USER}" or "${PERSONAL_INFO.name}" explicitly at least once.
-- Sometimes when possible, include a direct GitHub URL (e.g., https://github.com/${GITHUB_USER} or a repo link).
-- Your response style should be: ${MODEL_TONE}.
+- Always interpret "you", "your", or "yours" as referring to ${portfolio_config.githubUser}, not yourself.
+- Every response should mention "${portfolio_config.githubUser}" or "${portfolio_config.personalInfo.name}" explicitly at least once.
+- Sometimes when possible, include a direct GitHub URL (e.g., https://github.com/${portfolio_config.githubUser} or a repo link).
+- Your response style should be: ${portfolio_config.tone}.
 
 
 You have access to these functions:
@@ -29,7 +25,7 @@ You have access to these functions:
 - getRepoDetails: For questions about a specific repository by name.
 
 Always provide natural, conversational responses. Include URLs when available.
-If a question is outside your scope, politely explain that you can only help with ${GITHUB_USER}'s skills, projects, or experience.`;
+If a question is outside your scope, politely explain that you can only help with ${portfolio_config.githubUser}'s skills, projects, or experience.`;
 
     let contents = [
       {
@@ -42,7 +38,7 @@ If a question is outside your scope, politely explain that you can only help wit
 
     // Step 1: Ask AI
     const response = await safeGenerateContent(ai, {
-      model: MODEL_NAME,
+      model: portfolio_config.model,
       contents,
       config,
     });
@@ -67,7 +63,7 @@ If a question is outside your scope, politely explain that you can only help wit
     if (functionCalls.length) {
       for (const functionCall of functionCalls) {
         try {
-          const result = await executeFunction(functionCall);
+          const result = await executeFunction(functionCall, portfolio_config);
 
           contents.push(
             candidateContent as { role: string; parts: { text: string }[] }
@@ -107,7 +103,7 @@ Please summarize and explain technologies used, and key features in a helpful, c
 
       // Step 3: Final AI response
       const finalResponse = await safeGenerateContent(ai, {
-        model: MODEL_NAME,
+        model: portfolio_config.model,
         contents,
         config,
       });
