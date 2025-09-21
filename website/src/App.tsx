@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button";
 import { portfolio_config } from "../portfolio_config";
+import { ChatbotWidget } from "../../src/index";
 
 function App() {
-  console.log("🚀 ~ portfolio_config:", portfolio_config);
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-    </div>
+    <>
+      <h1 className="text-pink-400"> chatbot below</h1>
+      <ChatbotWidget config={portfolio_config} />
+    </>
   );
 }
 
