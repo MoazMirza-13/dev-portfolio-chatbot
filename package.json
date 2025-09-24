@@ -19,11 +19,10 @@
     }
   },
   "scripts": {
-    "build:css": "npx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css",
-    "vite": "vite build",
+    "build:css": "npx @tailwindcss/cli -i ./src/styles.css -o ./src/tailwind.css",
     "build:react": "vite build --config vite.config.react.ts",
     "build:vanilla": "vite build --config vite.config.vanilla.ts",
-    "both": "npm run build:react && npm run build:vanilla"
+    "build:all": "npm run build:css && npm run build:react && npm run build:vanilla"
   },
   "peerDependencies": {
     "react": ">=16",
