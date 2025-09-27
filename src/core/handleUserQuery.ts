@@ -1,4 +1,4 @@
-import { GenerateContentResponse, GoogleGenAI } from "@google/genai";
+import { GenerateContentResponse } from "@google/genai";
 import { functionDeclarations } from "./functionDefs";
 import { extractText, safeGenerateContent } from "./utils";
 import { executeFunction } from "./functionExec";
@@ -8,7 +8,6 @@ export async function handleUserQuery(
   userPrompt: string,
   portfolio_config: Config
 ) {
-  const ai = new GoogleGenAI({ apiKey: portfolio_config.apiKey });
   try {
     const systemMessage = `You are a helpful assistant that can answer questions about ${portfolio_config.githubUser}'s professional background, skills, and GitHub projects.
 
@@ -37,7 +36,7 @@ If a question is outside your scope, politely explain that you can only help wit
     const config = { tools: [{ functionDeclarations }] };
 
     // Step 1: Ask AI
-    const response = await safeGenerateContent(ai, {
+    const response = await safeGenerateContent(portfolio_config.apiUrl, {
       model: portfolio_config.model,
       contents,
       config,
@@ -102,7 +101,7 @@ Please summarize and explain technologies used, and key features in a helpful, c
       }
 
       // Step 3: Final AI response
-      const finalResponse = await safeGenerateContent(ai, {
+      const finalResponse = await safeGenerateContent(portfolio_config.apiUrl, {
         model: portfolio_config.model,
         contents,
         config,

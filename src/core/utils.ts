@@ -25,11 +25,21 @@ export function limitedText(readme: string, maxLength = 2000) {
 }
 
 export async function safeGenerateContent(
-  ai: GoogleGenAI,
+  apiUrl: string,
   options: Parameters<GoogleGenAI["models"]["generateContent"]>[0] // infer first parameter type
 ) {
   try {
-    return await ai.models.generateContent(options);
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(options),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Proxy error: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
   } catch (err) {
     const error = err as Error;
     console.error("Gemini error:", error.message);

@@ -1,7 +1,7 @@
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const API_URL = import.meta.env.VITE_API_URL;
 const GITHUB_USER = import.meta.env.VITE_GITHUB_USERNAME;
 
-if (!API_KEY || !GITHUB_USER) {
+if (!API_URL || !GITHUB_USER) {
   throw new Error("❌ Missing GEMINI_API_KEY or GITHUB_USERNAME in .env file.");
 }
 
@@ -22,7 +22,7 @@ const PERSONAL_INFO = {
 };
 
 export const portfolio_config = {
-  apiKey: API_KEY,
+  apiUrl: API_URL,
   model: MODEL_NAME,
   tone: MODEL_TONE,
   personalInfo: PERSONAL_INFO,
