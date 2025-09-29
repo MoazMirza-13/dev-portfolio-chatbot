@@ -1,8 +1,8 @@
 import r2wc from "@r2wc/react-to-web-component";
-import { ChatbotWidget } from "./components/chatbot-widget";
-import { handleUserQuery } from "./core/handleUserQuery";
-import * as types from "./core/types";
-import "./tailwind.css";
+import { ChatbotWidget } from "../components/chatbot-widget";
+import { handleUserQuery } from "../core/handleUserQuery";
+import * as types from "../core/types";
+import "../tailwind.css";
 
 export { ChatbotWidget };
 export { handleUserQuery };
