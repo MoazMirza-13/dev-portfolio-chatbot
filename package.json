@@ -1,18 +1,17 @@
 {
-  "name": "react-portfolio-chatbot",
-  "description": "",
+  "name": "dev-portfolio-chatbot",
+  "description": "An AI-powered chatbot for developers portfolio websites",
   "version": "0.1.0",
-  "main": "dist/react/chatbot-widget.umd.js",
-  "module": "dist/react/chatbot-widget.es.js",
-  "types": "dist/react/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
-      "types": "./dist/react/index.d.ts",
-      "import": "./dist/react/chatbot-widget.es.js",
-      "require": "./dist/react/chatbot-widget.umd.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./vanilla": {
       "import": "./dist/vanilla/chatbot-widget.vanilla.js"
@@ -20,7 +19,7 @@
   },
   "scripts": {
     "build:css": "npx @tailwindcss/cli -i ./src/styles.css -o ./src/tailwind.css",
-    "build:react": "vite build --config vite.config.react.ts",
+    "build:react": "bunchee src/index.react.ts -o dist/index.js --format esm --target es2020 --sourcemap",
     "build:vanilla": "vite build --config vite.config.vanilla.ts",
     "build:all": "npm run build:css && npm run build:react && npm run build:vanilla"
   },
@@ -45,6 +44,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^5.0.3",
+    "bunchee": "^6.6.0",
     "dotenv": "^17.2.2",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",

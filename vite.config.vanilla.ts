@@ -11,7 +11,7 @@ export default defineConfig({
   build: {
     outDir: "dist/vanilla",
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: path.resolve(__dirname, "src/index.vanilla.ts"),
       name: "ChatbotWidget",
       formats: ["iife"],
       fileName: () => `chatbot-widget.vanilla.js`,

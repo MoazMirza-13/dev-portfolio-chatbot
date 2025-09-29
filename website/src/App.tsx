@@ -1,5 +1,5 @@
 import { portfolio_config } from "../portfolio_config";
-import { ChatbotWidget } from "react-portfolio-chatbot";
+import { ChatbotWidget } from "dev-portfolio-chatbot";
 function App() {
   return (
     <>

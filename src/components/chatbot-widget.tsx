@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { handleUserQuery } from "../index";
+import { handleUserQuery } from "../core/handleUserQuery";
 import { Bot, Send, X } from "lucide-react";
 import { Config } from "../core/types";
 import { Button } from "./ui/button";
