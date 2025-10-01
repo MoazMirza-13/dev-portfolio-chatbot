@@ -22,7 +22,8 @@
     "build:css": "npx @tailwindcss/cli -i ./src/styles.css -o ./src/tailwind.css",
     "build:react": "bunchee src/index.react.ts -o dist/index.js --format esm --target es2020 --sourcemap",
     "build:vanilla": "vite build --config vite.config.vanilla.ts",
-    "build:all": "npm run build:css && npm run build:react && npm run build:vanilla"
+    "build:all": "pnpm run build:css && pnpm run build:react && pnpm run build:vanilla",
+    "build": "pnpm run build:all"
   },
   "peerDependencies": {
     "react": ">=16",
