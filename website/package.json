@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "prebuild": "pnpm run build --filter dev-portfolio-chatbot",
+    "build": "pnpm run build --filter dev-portfolio-chatbot && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
