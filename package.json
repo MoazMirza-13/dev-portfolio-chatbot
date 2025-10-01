@@ -23,7 +23,7 @@
     "build:react": "bunchee src/index.react.ts -o dist/index.js --format esm --target es2020 --sourcemap",
     "build:vanilla": "vite build --config vite.config.vanilla.ts",
     "build:all": "pnpm run build:css && pnpm run build:react && pnpm run build:vanilla",
-    "build": "pnpm run build:all",
+    "build": "pnpm run build:all && pnpm --filter website run build",
     "prepare": "husky"
   },
   "lint-staged": {
