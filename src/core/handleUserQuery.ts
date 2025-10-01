@@ -6,7 +6,8 @@ import { Config } from "./types";
 
 export async function handleUserQuery(
   userPrompt: string,
-  portfolio_config: Config
+  portfolio_config: Config,
+  history: { role: "user" | "model"; text: string }[] = []
 ) {
   try {
     const systemMessage = `You are a helpful assistant that can answer questions about ${portfolio_config.githubUser}'s professional background, skills, and GitHub projects.
@@ -27,6 +28,10 @@ Always provide natural, conversational responses. Include URLs when available.
 If a question is outside your scope, politely explain that you can only help with ${portfolio_config.githubUser}'s skills, projects, or experience.`;
 
     let contents = [
+      ...history.map((m) => ({
+        role: m.role,
+        parts: [{ text: m.text }],
+      })),
       {
         role: "user",
         parts: [{ text: `${systemMessage}\n\nUser question: ${userPrompt}` }],

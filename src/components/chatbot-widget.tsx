@@ -30,14 +30,20 @@ export function ChatbotWidget({
   config,
 }: ChatbotWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      text: `Hi! I'm AI assistant. How can I help you today?`,
-      isUser: false,
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = sessionStorage.getItem("chatMessages");
+    return saved
+      ? JSON.parse(saved)
+      : [
+          {
+            id: "1",
+            text: `Hi! I'm AI assistant. How can I help you today?`,
+            isUser: false,
+            timestamp: new Date(),
+          },
+        ];
+  });
+
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,6 +63,10 @@ export function ChatbotWidget({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    sessionStorage.setItem("chatMessages", JSON.stringify(messages));
+  }, [messages]);
+
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
@@ -67,12 +77,18 @@ export function ChatbotWidget({
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputValue("");
     setIsLoading(true);
 
     try {
-      const response = await handleUserQuery(inputValue, config);
+      const chatHistory = messages.map((m) => ({
+        role: m.isUser ? "user" : "model",
+        text: m.text,
+      })) as { role: "user" | "model"; text: string }[];
+
+      const response = await handleUserQuery(inputValue, config, chatHistory);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
