@@ -1,0 +1,20 @@
+#!/bin/sh
+echo '🏴‍☠️ Pre-commit checklist: Set sail for the Grand Line!' 
+
+# Run lint-staged
+echo '🔍 Scanning your staged files with pnpm lint-staged...' 
+pnpm lint-staged ||
+(
+  echo "😱 Yikes! Lint-staged found issues. Who're you ZORO? Go and this time, make it in the right direction!" 
+  false
+)
+
+# Run the build process
+echo '🏗️ Building your project with pnpm run build...' 
+pnpm run build ||
+(
+  echo '💥 Build failed! Even Usopp’s lies are less obvious!' 
+  false
+)
+
+echo "🎉 All clear! Your commit is about to be as legendary as Sanji's Dinner!"

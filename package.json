@@ -23,7 +23,13 @@
     "build:react": "bunchee src/index.react.ts -o dist/index.js --format esm --target es2020 --sourcemap",
     "build:vanilla": "vite build --config vite.config.vanilla.ts",
     "build:all": "pnpm run build:css && pnpm run build:react && pnpm run build:vanilla",
-    "build": "pnpm run build:all"
+    "build": "pnpm run build:all",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "website/**/*.{js,ts,jsx,tsx,css}": [
+      "pnpm --filter website lint --fix"
+    ]
   },
   "peerDependencies": {
     "react": ">=16",
@@ -48,6 +54,8 @@
     "@vitejs/plugin-react": "^5.0.3",
     "bunchee": "^6.6.0",
     "dotenv": "^17.2.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.3",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
