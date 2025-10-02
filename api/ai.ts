@@ -5,10 +5,17 @@ export const config = {
 };
 
 export default async function handler(req: Request): Promise<Response> {
+  const headers = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
   }
 
@@ -17,7 +24,7 @@ export default async function handler(req: Request): Promise<Response> {
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "Missing GEMINI_API_KEY" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
   }
 
@@ -36,7 +43,7 @@ export default async function handler(req: Request): Promise<Response> {
         JSON.stringify({ error: "Missing required parameters" }),
         {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers,
         }
       );
     }
@@ -50,7 +57,7 @@ export default async function handler(req: Request): Promise<Response> {
 
     return new Response(JSON.stringify(response), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
   } catch (error) {
     console.error("Gemini error:", error);
@@ -58,7 +65,7 @@ export default async function handler(req: Request): Promise<Response> {
       JSON.stringify({ error: "Failed to generate content" }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers,
       }
     );
   }
