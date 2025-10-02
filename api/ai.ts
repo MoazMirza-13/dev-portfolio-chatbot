@@ -12,6 +12,11 @@ export default async function handler(req: Request): Promise<Response> {
     "Access-Control-Allow-Headers": "Content-Type",
   };
 
+  // Handle preflight request
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers });
+  }
+
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
@@ -41,10 +46,7 @@ export default async function handler(req: Request): Promise<Response> {
     if (!model || !contents) {
       return new Response(
         JSON.stringify({ error: "Missing required parameters" }),
-        {
-          status: 400,
-          headers,
-        }
+        { status: 400, headers }
       );
     }
 
@@ -55,18 +57,12 @@ export default async function handler(req: Request): Promise<Response> {
       config,
     });
 
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers,
-    });
+    return new Response(JSON.stringify(response), { status: 200, headers });
   } catch (error) {
     console.error("Gemini error:", error);
     return new Response(
       JSON.stringify({ error: "Failed to generate content" }),
-      {
-        status: 500,
-        headers,
-      }
+      { status: 500, headers }
     );
   }
 }
