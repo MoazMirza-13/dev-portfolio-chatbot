@@ -9,24 +9,27 @@ export async function handleUserQuery(
   portfolio_config: Config,
   history: { role: "user" | "model"; text: string }[] = []
 ) {
-  try {
-    const systemMessage = `You are a helpful assistant that can answer questions about ${portfolio_config.githubUser}'s professional background, skills, and GitHub projects.
+  const systemMessage = `
+You are a helpful assistant that can answer questions about ${portfolio_config.personalInfo.name}'s professional background, skills, and projects.
 
-    Important instructions:
-- Always interpret "you", "your", or "yours" as referring to ${portfolio_config.githubUser}, not yourself.
-- Every response should mention "${portfolio_config.githubUser}" or "${portfolio_config.personalInfo.name}" explicitly at least once.
-- Sometimes when possible, include a direct GitHub URL (e.g., https://github.com/${portfolio_config.githubUser} or a repo link).
-- Your response style should be: ${portfolio_config.tone}.
+Important instructions:
+- User is ${portfolio_config.personalInfo.name} and their GitHub username is ${portfolio_config.githubUser}. Always interpret "you", "your", or "yours" as referring to ${portfolio_config.personalInfo.name}'s professional profile, not yourself.
+- Always include **all available URLs** for each project, including GitHub repository links AND homepage links if available. Never omit any link.
+- Sometimes mention "${portfolio_config.githubUser}" or "${portfolio_config.personalInfo.name}".
+- Do not try to guess; only provide fact-based answers. Treat each new question independently unless the user explicitly refers to previous chat.
+- If a question is outside your scope, politely explain that you can only provide information about ${portfolio_config.personalInfo.name}'s skills, projects, experience, or professional info.
 
 
 You have access to these functions:
 - getPersonalInfo: For questions about personal info, bio, skills, experience, education, etc.
-- getAllRepos: For questions about all repositories, recent projects, languages used, etc.
+- getAllRepos: For questions about all repositories, recent projects, languages used, tech stack, or tools.
 - getRepoDetails: For questions about a specific repository by name.
 
-Always provide natural, conversational responses. Include URLs when available.
-If a question is outside your scope, politely explain that you can only help with ${portfolio_config.githubUser}'s skills, projects, or experience.`;
+Do not mention these functions in responses.
+If the user asks about programming languages, tech stack, tools used in projects, or repositories, always use the getAllRepos function.
+`;
 
+  try {
     let contents = [
       ...history.map((m) => ({
         role: m.role,
@@ -34,11 +37,14 @@ If a question is outside your scope, politely explain that you can only help wit
       })),
       {
         role: "user",
-        parts: [{ text: `${systemMessage}\n\nUser question: ${userPrompt}` }],
+        parts: [{ text: userPrompt }],
       },
     ];
 
-    const config = { tools: [{ functionDeclarations }] };
+    const config = {
+      systemInstruction: systemMessage,
+      tools: [{ functionDeclarations }],
+    };
 
     // Step 1: Ask AI
     const response = await safeGenerateContent(portfolio_config.apiUrl, {
@@ -84,7 +90,9 @@ If a question is outside your scope, politely explain that you can only help wit
                   2
                 )}
             
-Please summarize and explain technologies used, and key features in a helpful, conversational way for a non-technical person.`,
+Please summarize this in a **clear and concise form** (not too short), keep it **user-friendly**, and **do not remove any links or URLs** and **use homepage links as demo links**. Exclude unnecessary details but ensure key info, functionalities and technologies are explained. Your response style should be: ${
+                  portfolio_config.tone
+                }.`,
               },
             ],
           });
@@ -109,7 +117,9 @@ Please summarize and explain technologies used, and key features in a helpful, c
       const finalResponse = await safeGenerateContent(portfolio_config.apiUrl, {
         model: portfolio_config.model,
         contents,
-        config,
+        config: {
+          systemInstruction: systemMessage,
+        },
       });
 
       return extractText(finalResponse as GenerateContentResponse);

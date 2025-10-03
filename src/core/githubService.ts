@@ -14,6 +14,7 @@ export function simplifyRepo(repo: SimplifiedRepo): SimplifiedRepo {
     forks_count: repo.forks_count,
     visibility: repo.visibility,
     default_branch: repo.default_branch,
+    homepage: repo.homepage,
   };
 
   return simplifiedRepo;

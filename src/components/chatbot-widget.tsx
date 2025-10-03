@@ -39,7 +39,7 @@ export function ChatbotWidget({
       : [
           {
             id: "1",
-            text: `Hi! I'm AI assistant. How can I help you today?`,
+            text: `Hi! How can I help you today?`,
             isUser: false,
             timestamp: new Date(),
           },

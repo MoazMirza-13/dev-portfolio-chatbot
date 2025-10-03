@@ -32,6 +32,7 @@ export type SimplifiedRepo = {
   forks_count: number;
   visibility: string;
   default_branch: string;
+  homepage: string;
   readme?: string;
 };
 

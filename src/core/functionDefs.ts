@@ -14,7 +14,7 @@ export const getPersonalInfoDeclaration = {
 export const getAllReposDeclaration = {
   name: "getAllRepos",
   description:
-    "Get all GitHub repositories for the user. Supports filtering and sorting (e.g., latest, most stars, most forks). And optionally including README content.",
+    "Get all GitHub repositories for the user. Always use this function when the question is about programming languages, tech stack, or tools used in projects. Supports filtering and sorting (e.g., latest, most stars, most forks). And optionally including README content. If asked about 'famous' or 'best' then sort according to 'stars' and 'forks'.",
   parameters: {
     type: Type.OBJECT,
     properties: {
