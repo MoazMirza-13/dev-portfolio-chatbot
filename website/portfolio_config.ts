@@ -1,13 +1,13 @@
 const API_URL = import.meta.env.VITE_API_URL;
-const GITHUB_USER = import.meta.env.VITE_GITHUB_USERNAME;
 
-if (!API_URL || !GITHUB_USER) {
-  throw new Error("❌ Missing API_URL or GITHUB_USERNAME in .env file.");
+if (!API_URL) {
+  throw new Error("❌ Missing API_URL in .env file.");
 }
 
 const MODEL_NAME = "gemini-2.5-flash-lite";
-
 const MODEL_TONE = "default"; // eg: professional, funny, polite, friendly, moody or default
+
+const GITHUB_USER = "MoazMirza-13";
 
 const PERSONAL_INFO = {
   name: "Moaz",
@@ -16,9 +16,9 @@ const PERSONAL_INFO = {
   location: "Narowal",
   skills: ["JavaScript", "React", "Node.js", "Python", "Git"],
   education: "Bs psychologist",
-  contact: "blahblah.com",
+  contact: "moazmirza13@gmail.com",
   bio: "Passionate developer who loves to do side projects",
-  interests: ["Web Development", "killing humans :)", "Open Source"],
+  interests: ["Web Development", "Books", "One piece"],
 };
 
 export const portfolio_config = {
