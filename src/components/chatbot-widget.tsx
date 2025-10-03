@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { handleUserQuery } from "../core/handleUserQuery";
-import { Bot, Send, X } from "lucide-react";
+import { Bot, Send, Trash, X } from "lucide-react";
 import { Config } from "../core/types";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -118,6 +118,11 @@ export function ChatbotWidget({
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const clearChatHistory = () => {
+    sessionStorage.removeItem("chatMessages");
+    setMessages([]);
   };
 
   const getButtonPositionClasses = (pos: Position) => {
@@ -256,6 +261,14 @@ export function ChatbotWidget({
           {/* Input */}
           <div className="p-4 border-t border-border">
             <div className="flex gap-2">
+              <Button
+                onClick={clearChatHistory}
+                disabled={isLoading}
+                size="sm"
+                className="px-3"
+              >
+                <Trash className="w-4 h-4" />
+              </Button>
               <Input
                 ref={inputRef}
                 value={inputValue}
