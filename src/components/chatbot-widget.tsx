@@ -1,5 +1,7 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { handleUserQuery } from "../core/handleUserQuery";
 import { Bot, Send, X } from "lucide-react";
 import { Config } from "../core/types";
@@ -58,10 +60,10 @@ export function ChatbotWidget({
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (!isLoading && isOpen && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isOpen]);
+  }, [isLoading, isOpen]);
 
   useEffect(() => {
     sessionStorage.setItem("chatMessages", JSON.stringify(messages));
@@ -198,7 +200,7 @@ export function ChatbotWidget({
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 break-words">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -207,13 +209,27 @@ export function ChatbotWidget({
                 }`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                  className={`prose max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                     message.isUser
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {message.text}
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      a: ({ node, ...props }) => (
+                        <a
+                          {...props}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 underline"
+                        />
+                      ),
+                    }}
+                  >
+                    {message.text}
+                  </ReactMarkdown>
                 </div>
               </div>
             ))}
