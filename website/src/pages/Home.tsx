@@ -1,7 +1,12 @@
 import { ChatbotWidget } from "dev-portfolio-chatbot";
 import { portfolio_config } from "../../portfolio_config";
+import { useState } from "react";
 
 export default function Home() {
+  const [size, setSize] = useState<"small" | "medium" | "large">("medium");
+  const [position, setPosition] = useState<
+    "right-bottom" | "left-bottom" | "right-top" | "left-top"
+  >("right-bottom");
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
@@ -39,7 +44,7 @@ export default function Home() {
             <div className="space-y-4 text-sm">
               <div className="bg-muted p-4 rounded-md">
                 <p className="font-mono text-muted-foreground mb-2">
-                  Default (medium size, right-bottom):
+                  Default (medium size, right-bottom position):
                 </p>
                 <code className="text-foreground">{`<ChatbotWidget />`}</code>
               </div>
@@ -85,48 +90,83 @@ export default function Home() {
             <h2 className="text-xl font-semibold mb-4 text-card-foreground">
               Available Options
             </h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold mb-2 text-card-foreground">
-                  Positions:
-                </h3>
-                <ul className="space-y-1 text-muted-foreground text-sm">
-                  <li>
-                    • <code>right-bottom</code> (default)
-                  </li>
-                  <li>
-                    • <code>left-bottom</code>
-                  </li>
-                  <li>
-                    • <code>right-top</code>
-                  </li>
-                  <li>
-                    • <code>left-top</code>
-                  </li>
-                </ul>
-              </div>
+            <div className="flex flex-col gap-6">
+              {/* Sizes */}
               <div>
                 <h3 className="font-semibold mb-2 text-card-foreground">
                   Sizes:
                 </h3>
-                <ul className="space-y-1 text-muted-foreground text-sm">
-                  <li>
-                    • <code>small</code> – 320×384px
-                  </li>
-                  <li>
-                    • <code>medium</code> – 384×512px (default)
-                  </li>
-                  <li>
-                    • <code>large</code> – 448×576px
-                  </li>
-                </ul>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-wrap gap-2">
+                    {(
+                      [
+                        { label: "small", desc: "320×384px" },
+                        { label: "medium", desc: "384×512px (default)" },
+                        { label: "large", desc: "448×576px" },
+                      ] as const
+                    ).map((s) => (
+                      <button
+                        key={s.label}
+                        onClick={() => setSize(s.label)}
+                        className={`px-3 py-1.5 rounded-md border text-sm transition cursor-pointer ${
+                          size === s.label
+                            ? "bg-gray-100 border-gray-400 text-foreground"
+                            : "bg-muted text-muted-foreground border-transparent hover:bg-accent hover:text-accent-foreground"
+                        }`}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="bg-muted p-4 rounded-md text-sm">
+                    <code className="text-foreground">{`<ChatbotWidget size="${size}" />`}</code>
+                  </div>
+                </div>
+              </div>
+              {/* Positions */}
+              <div>
+                <h3 className="font-semibold mb-2 text-card-foreground">
+                  Positions:
+                </h3>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-wrap gap-2">
+                    {(
+                      [
+                        "right-bottom",
+                        "left-bottom",
+                        "right-top",
+                        "left-top",
+                      ] as const
+                    ).map((pos) => (
+                      <button
+                        key={pos}
+                        onClick={() => setPosition(pos)}
+                        className={`px-3 py-1.5 rounded-md border text-sm transition cursor-pointer ${
+                          position === pos
+                            ? "bg-gray-100 border-gray-400 text-foreground"
+                            : "bg-muted text-muted-foreground border-transparent hover:bg-accent hover:text-accent-foreground"
+                        }`}
+                      >
+                        {pos}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="bg-muted p-4 rounded-md text-sm">
+                    <code className="text-foreground">{`<ChatbotWidget position="${position}" />`}</code>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      <ChatbotWidget config={portfolio_config} />
+      <ChatbotWidget
+        key={position}
+        config={portfolio_config}
+        size={size}
+        position={position}
+      />
     </div>
   );
 }

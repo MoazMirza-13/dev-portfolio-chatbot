@@ -198,7 +198,7 @@ export function ChatbotWidget({
               variant="ghost"
               size="sm"
               onClick={() => setIsOpen(false)}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -294,7 +294,7 @@ export function ChatbotWidget({
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90 ${getButtonPositionClasses(
+        className={`fixed w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90 cursor-pointer ${getButtonPositionClasses(
           position
         )}`}
         size="sm"
