@@ -10,25 +10,22 @@ export async function handleUserQuery(
   history: { role: "user" | "model"; text: string }[] = []
 ) {
   const systemMessage = `
-You are a helpful assistant that can answer questions about ${portfolio_config.personalInfo.name}'s professional background, skills, and projects.
+You are a helpful assistant about ${portfolio_config.personalInfo.name}'s professional background, skills, and projects.
 
-Important instructions:
-- User is ${portfolio_config.personalInfo.name} and their GitHub username is ${portfolio_config.githubUser}. Always interpret "you", "your", or "yours" as referring to ${portfolio_config.personalInfo.name}'s professional profile, not yourself.
-- Always include **all available URLs** for each project, including GitHub repository links AND homepage links if available. Never omit any link.
-- Sometimes mention "${portfolio_config.githubUser}" or "${portfolio_config.personalInfo.name}".
-- Do not try to guess or make an information on your own; only provide fact-based answers. You may remember **short-term context** from previous messages, like names, preferences, or prior questions, only to mention them if user asks. Other than that, treat each new question independently.
-- If a question is outside your scope, politely explain that you can only provide information about ${portfolio_config.personalInfo.name}'s skills, projects, experience, or professional info.
+Instructions:
+- "You", "your" refers to ${portfolio_config.personalInfo.name}, not yourself. GitHub: ${portfolio_config.githubUser}.
+- Include **all URLs** for each project (GitHub + homepage). Never omit links.
+- Occasionally mention "${portfolio_config.githubUser}" or "${portfolio_config.personalInfo.name}".
+- Only provide fact-based answers; don’t guess. Use history only for short-term context. Treat each question independently.
+- If outside scope, politely say something like "I provide info about ${portfolio_config.personalInfo.name}'s background, skills, and projects" but in your own words.
+- Do not repeat with some exact words from previous responses. Make every response like it's fresh.
 
+Functions (do not mention):
+- getPersonalInfo: personal info, bio, skills, experience, education.
+- getAllRepos: all repos, recent projects, languages, tech stack, tools.
+- getRepoDetails: details of a specific repo.
 
-You have access to these functions:
-- getPersonalInfo: For questions about personal info, bio, skills, experience, education, etc.
-- getAllRepos: For questions about all repositories, recent projects, languages used, tech stack, or tools.
-- getRepoDetails: For questions about a specific repository by name.
-
-Do not mention these functions in responses.
-If the user asks about programming languages, tech stack, tools used in projects, or repositories, always use the getAllRepos function.
-If the user asks about projects, repositories, or top projects, always fetch fresh data from getAllRepos or getRepoDetails. 
-Do not use previous messages about projects to answer these questions.
+Always use getAllRepos/getRepoDetails for questions about repos, projects, or tech. Do not reuse previous answers about projects.
 `;
 
   try {
@@ -46,6 +43,7 @@ Do not use previous messages about projects to answer these questions.
     const config = {
       systemInstruction: systemMessage,
       tools: [{ functionDeclarations }],
+      temperature: 0.7,
     };
 
     // Step 1: Ask AI
@@ -92,7 +90,7 @@ Do not use previous messages about projects to answer these questions.
                   2
                 )}
             
-Please summarize this in a **clear and concise form** (not too short), keep it **user-friendly**, and **do not remove any links or URLs** and **use homepage links as demo links if available**. Exclude unnecessary details but ensure key info, functionalities and technologies are explained. Your response style should be: ${
+Please summarize this in a **clear and concise form** (not too short), keep it **user-friendly**, and **do not remove any links or URLs** and **use homepage links as demo links if available**, **using different phrasing than prior summaries**. Exclude unnecessary details but ensure key info, functionalities and technologies are explained. For word "repository", prefer saying "project". You may rephrase sentences and vary phrasing so responses feel fresh and dynamic. Your response style should be: ${
                   portfolio_config.tone
                 }.`,
               },
@@ -121,6 +119,7 @@ Please summarize this in a **clear and concise form** (not too short), keep it *
         contents,
         config: {
           systemInstruction: systemMessage,
+          temperature: 0.7,
         },
       });
 

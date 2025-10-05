@@ -263,9 +263,9 @@ export function ChatbotWidget({
             <div className="flex gap-2">
               <Button
                 onClick={clearChatHistory}
-                disabled={isLoading}
+                disabled={isLoading || messages.length === 0}
                 size="sm"
-                className="px-3"
+                className="px-3 cursor-pointer"
               >
                 <Trash className="w-4 h-4" />
               </Button>
@@ -282,7 +282,7 @@ export function ChatbotWidget({
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
                 size="sm"
-                className="px-3"
+                className="px-3 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </Button>
