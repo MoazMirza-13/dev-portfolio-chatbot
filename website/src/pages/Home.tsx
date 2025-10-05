@@ -1,12 +1,23 @@
 import { ChatbotWidget } from "dev-portfolio-chatbot";
 import { portfolio_config } from "../../portfolio_config";
 import { useState } from "react";
+import { getButtonClass } from "@/utils";
 
 export default function Home() {
   const [size, setSize] = useState<"small" | "medium" | "large">("medium");
   const [position, setPosition] = useState<
     "right-bottom" | "left-bottom" | "right-top" | "left-top"
   >("right-bottom");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  const applyTheme = (mode: "light" | "dark") => {
+    setTheme(mode);
+    if (mode === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
@@ -19,6 +30,7 @@ export default function Home() {
         </p>
 
         <div className="max-w-4xl mx-auto space-y-6">
+          {/* Features */}
           <div className="bg-card p-6 rounded-lg border border-border">
             <h2 className="text-xl font-semibold mb-4 text-card-foreground">
               Features
@@ -36,7 +48,7 @@ export default function Home() {
               <li>• Clean, modern interface</li>
             </ul>
           </div>
-
+          {/* Usage */}
           <div className="bg-card p-6 rounded-lg border border-border">
             <h2 className="text-xl font-semibold mb-4 text-card-foreground">
               Usage Examples
@@ -85,7 +97,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-
+          {/* Options */}
           <div className="bg-card p-6 rounded-lg border border-border">
             <h2 className="text-xl font-semibold mb-4 text-card-foreground">
               Available Options
@@ -108,11 +120,7 @@ export default function Home() {
                       <button
                         key={s.label}
                         onClick={() => setSize(s.label)}
-                        className={`px-3 py-1.5 rounded-md border text-sm transition cursor-pointer ${
-                          size === s.label
-                            ? "bg-gray-100 border-gray-400 text-foreground"
-                            : "bg-muted text-muted-foreground border-transparent hover:bg-accent hover:text-accent-foreground"
-                        }`}
+                        className={getButtonClass(size === s.label)}
                       >
                         {s.label}
                       </button>
@@ -141,11 +149,7 @@ export default function Home() {
                       <button
                         key={pos}
                         onClick={() => setPosition(pos)}
-                        className={`px-3 py-1.5 rounded-md border text-sm transition cursor-pointer ${
-                          position === pos
-                            ? "bg-gray-100 border-gray-400 text-foreground"
-                            : "bg-muted text-muted-foreground border-transparent hover:bg-accent hover:text-accent-foreground"
-                        }`}
+                        className={getButtonClass(position === pos)}
                       >
                         {pos}
                       </button>
@@ -156,6 +160,27 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+          {/* Theme Card */}
+          <div className="bg-card p-6 rounded-lg border border-border">
+            <h2 className="text-xl font-semibold mb-4 text-card-foreground">
+              Theme
+            </h2>
+            <p className="text-muted-foreground mb-4">
+              Toggle between <strong>Light</strong> and <strong>Dark</strong>{" "}
+              mode to preview the widget.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {(["light", "dark"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => applyTheme(t)}
+                  className={getButtonClass(theme === t)}
+                >
+                  {t === "light" ? "Light Theme" : "Dark Theme"}
+                </button>
+              ))}
             </div>
           </div>
         </div>

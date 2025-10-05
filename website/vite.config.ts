@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
+      "@": path.resolve(__dirname, "src"),
       "dev-portfolio-chatbot": path.resolve(__dirname, "../src/index.react.ts"), // for hot reloading from root dir files
     },
   },
