@@ -20,13 +20,13 @@ export default function Home() {
   };
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-10 mb-28">
         <h1 className="text-4xl font-bold text-center mb-8 text-foreground">
           Dev Portfolio Chatbot
         </h1>
         <p className="text-center text-muted-foreground mb-8">
-          This demo showcases a fully dynamic chatbot widget with customizable
-          positions and sizes.
+          A chatbot for developer portfolios that answers visitor questions in
+          real-time using your GitHub data.
         </p>
 
         <div className="max-w-4xl mx-auto space-y-6">
@@ -46,14 +46,36 @@ export default function Home() {
               <li>• Responsive design</li>
               <li>• AI-powered responses</li>
               <li>• Clean, modern interface</li>
+              <li>
+                • Framework-agnostic: Works in React, Vue, Angular, or even in
+                plain HTML/JS
+              </li>
             </ul>
           </div>
           {/* Usage */}
-          <div className="bg-card p-6 rounded-lg border border-border">
+          <div className="bg-card p-6 rounded-lg border border-border text-sm">
+            <h2 className="text-xl font-semibold mb-4 text-card-foreground">
+              Usage
+            </h2>
+            <div className="space-y-4">
+              <div className="bg-muted p-4 rounded-md">
+                <p className="font-mono text-muted-foreground mb-2">
+                  Installation
+                </p>
+                <code className="text-foreground">{`npm install dev-portfolio-chatbot`}</code>
+              </div>
+              <div className="bg-muted p-4 rounded-md">
+                <p className="font-mono text-muted-foreground mb-2">Import</p>
+                <code className="text-foreground">{`import { ChatbotWidget } from "dev-portfolio-chatbot";`}</code>
+              </div>
+            </div>
+          </div>
+          {/* Usage Examples*/}
+          <div className="bg-card p-6 rounded-lg border border-border text-sm">
             <h2 className="text-xl font-semibold mb-4 text-card-foreground">
               Usage Examples
             </h2>
-            <div className="space-y-4 text-sm">
+            <div className="space-y-4 ">
               <div className="bg-muted p-4 rounded-md">
                 <p className="font-mono text-muted-foreground mb-2">
                   Default (medium size, right-bottom position):
