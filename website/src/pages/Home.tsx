@@ -1,23 +1,26 @@
-import { ChatbotWidget } from "dev-portfolio-chatbot";
-import { portfolio_config } from "../../portfolio_config";
-import { useState } from "react";
 import { getButtonClass } from "@/utils";
 
-export default function Home() {
-  const [size, setSize] = useState<"small" | "medium" | "large">("medium");
-  const [position, setPosition] = useState<
-    "right-bottom" | "left-bottom" | "right-top" | "left-top"
-  >("right-bottom");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+type HomeProps = {
+  size: "small" | "medium" | "large";
+  setSize: React.Dispatch<React.SetStateAction<"small" | "medium" | "large">>;
+  position: "right-bottom" | "left-bottom" | "right-top" | "left-top";
+  setPosition: React.Dispatch<
+    React.SetStateAction<
+      "right-bottom" | "left-bottom" | "right-top" | "left-top"
+    >
+  >;
+  theme: "light" | "dark";
+  applyTheme: (mode: "light" | "dark") => void;
+};
 
-  const applyTheme = (mode: "light" | "dark") => {
-    setTheme(mode);
-    if (mode === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
+export default function Home({
+  size,
+  setSize,
+  position,
+  setPosition,
+  theme,
+  applyTheme,
+}: HomeProps) {
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-10 mb-28">
@@ -207,13 +210,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-
-      <ChatbotWidget
-        key={position}
-        config={portfolio_config}
-        size={size}
-        position={position}
-      />
     </div>
   );
 }
