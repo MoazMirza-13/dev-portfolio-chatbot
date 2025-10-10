@@ -238,7 +238,7 @@ export function ChatbotWidget({
               }
             : undefined
         }
-        className={`fixed transition-all duration-300 ease-in-out z-40 ${getChatWindowPositionClasses(
+        className={`fixed transition-all duration-300 ease-in-out z-40 max-w-[90vw] max-h-[85vh] ${getChatWindowPositionClasses(
           position
         )} ${getSizeClasses(size)} ${
           isOpen
