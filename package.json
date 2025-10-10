@@ -7,7 +7,8 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
   "exports": {
     ".": {
@@ -25,6 +26,7 @@
     "build:all": "pnpm run build:css && pnpm run build:react && pnpm run build:vanilla",
     "build": "pnpm run build:all && pnpm --filter website run build",
     "dev": "pnpm dlx concurrently \"npx @tailwindcss/cli -i ./src/styles.css -o ./src/tailwind.css --watch\" \"pnpm --filter website run dev\"",
+    "postinstall": "node ./scripts/createConfig.js",
     "prepare": "husky"
   },
   "lint-staged": {

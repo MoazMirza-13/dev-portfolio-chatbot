@@ -15,7 +15,7 @@ const PERSONAL_INFO = {
   experience: "2 years",
   location: "Narowal",
   skills: ["JavaScript", "React", "Node.js", "Python", "Git"],
-  education: "Bs psychologist",
+  education: "Bs psychology",
   contact: "moazmirza13@gmail.com",
   bio: "Passionate developer who loves to do side projects",
   interests: ["Web Development", "Books", "One piece"],
