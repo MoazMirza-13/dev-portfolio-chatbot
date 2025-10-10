@@ -32,6 +32,10 @@ export function ChatbotWidget({
   config,
 }: ChatbotWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const [headerHeight, setHeaderHeight] = useState(0);
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = sessionStorage.getItem("chatMessages");
     return saved
@@ -46,8 +50,6 @@ export function ChatbotWidget({
         ];
   });
 
-  const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -68,6 +70,29 @@ export function ChatbotWidget({
   useEffect(() => {
     sessionStorage.setItem("chatMessages", JSON.stringify(messages));
   }, [messages]);
+
+  useEffect(() => {
+    const header = document.getElementById("header");
+    if (!header) {
+      setHeaderVisible(false);
+      return;
+    }
+
+    const updateHeaderState = () => {
+      const rect = header.getBoundingClientRect();
+      setHeaderHeight(header.offsetHeight);
+      setHeaderVisible(rect.bottom > 0); // true if header is still in view
+    };
+
+    updateHeaderState();
+    window.addEventListener("scroll", updateHeaderState);
+    window.addEventListener("resize", updateHeaderState);
+
+    return () => {
+      window.removeEventListener("scroll", updateHeaderState);
+      window.removeEventListener("resize", updateHeaderState);
+    };
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -172,6 +197,15 @@ export function ChatbotWidget({
     <>
       {/* Chat Window */}
       <div
+        style={
+          position.includes("top") && headerVisible
+            ? {
+                top: `${headerHeight + 80}px`,
+                right: position.includes("right") ? "1rem" : undefined,
+                left: position.includes("left") ? "1rem" : undefined,
+              }
+            : undefined
+        }
         className={`fixed transition-all duration-300 ease-in-out z-40 ${getChatWindowPositionClasses(
           position
         )} ${getSizeClasses(size)} ${
@@ -292,15 +326,26 @@ export function ChatbotWidget({
       </div>
 
       {/* Floating Button */}
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`fixed w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90 cursor-pointer ${getButtonPositionClasses(
-          position
-        )}`}
-        size="sm"
-      >
-        <Bot className="w-6 h-6 text-primary-foreground" />
-      </Button>
+      {(headerHeight > 0 || !headerVisible) && (
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`fixed w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90 cursor-pointer ${getButtonPositionClasses(
+            position
+          )}`}
+          size="sm"
+          style={
+            position.includes("top") && headerVisible
+              ? {
+                  top: `${headerHeight + 16}px`,
+                  right: position.includes("right") ? "1rem" : undefined,
+                  left: position.includes("left") ? "1rem" : undefined,
+                }
+              : undefined
+          }
+        >
+          <Bot className="w-6 h-6 text-primary-foreground" />
+        </Button>
+      )}
     </>
   );
 }
