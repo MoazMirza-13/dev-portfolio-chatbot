@@ -36,6 +36,8 @@ export function ChatbotWidget({
   const [isLoading, setIsLoading] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const [footerVisible, setFooterVisible] = useState(true);
+  const [footerHeight, setFooterHeight] = useState(0);
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = sessionStorage.getItem("chatMessages");
     return saved
@@ -91,6 +93,30 @@ export function ChatbotWidget({
     return () => {
       window.removeEventListener("scroll", updateHeaderState);
       window.removeEventListener("resize", updateHeaderState);
+    };
+  }, []);
+
+  useEffect(() => {
+    const footer = document.getElementById("footer");
+    if (!footer) {
+      setFooterVisible(false);
+      return;
+    }
+
+    const updateFooterState = () => {
+      const rect = footer.getBoundingClientRect();
+      setFooterHeight(footer.offsetHeight);
+      // footer is visible if its top is still inside viewport
+      setFooterVisible(rect.top < window.innerHeight);
+    };
+
+    updateFooterState();
+    window.addEventListener("scroll", updateFooterState);
+    window.addEventListener("resize", updateFooterState);
+
+    return () => {
+      window.removeEventListener("scroll", updateFooterState);
+      window.removeEventListener("resize", updateFooterState);
     };
   }, []);
 
@@ -201,6 +227,12 @@ export function ChatbotWidget({
           position.includes("top") && headerVisible
             ? {
                 top: `${headerHeight + 80}px`,
+                right: position.includes("right") ? "1rem" : undefined,
+                left: position.includes("left") ? "1rem" : undefined,
+              }
+            : position.includes("bottom") && footerVisible
+            ? {
+                bottom: `${footerHeight + 80}px`,
                 right: position.includes("right") ? "1rem" : undefined,
                 left: position.includes("left") ? "1rem" : undefined,
               }
@@ -337,6 +369,12 @@ export function ChatbotWidget({
             position.includes("top") && headerVisible
               ? {
                   top: `${headerHeight + 16}px`,
+                  right: position.includes("right") ? "1rem" : undefined,
+                  left: position.includes("left") ? "1rem" : undefined,
+                }
+              : position.includes("bottom") && footerVisible
+              ? {
+                  bottom: `${footerHeight + 16}px`,
                   right: position.includes("right") ? "1rem" : undefined,
                   left: position.includes("left") ? "1rem" : undefined,
                 }
