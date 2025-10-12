@@ -34,6 +34,27 @@
       "pnpm --filter website lint --fix"
     ]
   },
+  "author": "moaz-13",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MoazMirza-13/dev-portfolio-chatbot.git"
+  },
+  "homepage": "https://dev-portfolio-chatbot.vercel.app",
+  "bugs": {
+    "url": "https://github.com/MoazMirza-13/dev-portfolio-chatbot/issues"
+  },
+  "keywords": [
+    "chatbot",
+    "portfolio",
+    "ai",
+    "react-chatbot",
+    "web-component",
+    "tailwindcss",
+    "javascript",
+    "typescript",
+    "git-portfolio"
+  ],
   "peerDependencies": {
     "react": ">=16",
     "react-dom": ">=16"
