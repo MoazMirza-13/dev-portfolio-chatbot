@@ -2,7 +2,8 @@
 import fs from "fs";
 import path from "path";
 
-const configPath = path.resolve(process.cwd(), "portfolio_config.js");
+const projectRoot = process.env.INIT_CWD || process.cwd();
+const configPath = path.join(projectRoot, "portfolio_config.js");
 
 if (fs.existsSync(configPath)) {
   console.log("portfolio_config.js already exists, skipping creation.");
