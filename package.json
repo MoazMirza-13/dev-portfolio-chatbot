@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build:css": "npx @tailwindcss/cli -i ./src/styles.css -o ./src/tailwind.css",
-    "build:react": "bunchee src/index.react.ts -o dist/index.js --format esm --target es2020 --sourcemap",
+    "build:react": "bunchee src/index.react.ts -o dist/index.js --format esm --target es2020 --sourcemap && node scripts/inject-css.js",
     "build:vanilla": "vite build --config vite.config.vanilla.ts",
     "build:all": "pnpm run build:css && pnpm run build:react && pnpm run build:vanilla",
     "build": "pnpm run build:all && pnpm --filter website run build",
