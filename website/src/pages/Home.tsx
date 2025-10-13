@@ -114,7 +114,12 @@ export default function Home({
                     {`config={portfolio_config}`}
                   </code>{" "}
                   is required in all examples. See{" "}
-                  <a href="https://will-change-later.com" className="underline">
+                  <a
+                    href="https://github.com/MoazMirza-13/dev-portfolio-chatbot?tab=readme-ov-file#dev-portfolio-chatbot"
+                    className="underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     docs
                   </a>{" "}
                   for full configuration options.
