@@ -43,6 +43,12 @@ npm install dev-portfolio-chatbot
 
 > After installation, a `portfolio_config.js` file is automatically generated in your project root. You can edit it to provide your info.
 
+> If the config file is not generated during installation, run:
+
+```bash
+npx dev-portfolio-init
+```
+
 ---
 
 ## Portfolio Config

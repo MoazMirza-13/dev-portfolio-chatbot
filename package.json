@@ -30,6 +30,9 @@
     "postinstall": "node ./scripts/createConfig.js",
     "prepare": "husky"
   },
+  "bin": {
+    "dev-portfolio-init": "./scripts/createConfig.js"
+  },
   "lint-staged": {
     "website/**/*.{js,ts,jsx,tsx,css}": [
       "pnpm --filter website lint --fix"
