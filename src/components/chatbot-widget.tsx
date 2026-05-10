@@ -220,7 +220,7 @@ export function ChatbotWidget({
   };
 
   return (
-    <>
+    <div className="chatbot-widget-root">
       {/* Chat Window */}
       <div
         style={
@@ -231,15 +231,15 @@ export function ChatbotWidget({
                 left: position.includes("left") ? "1rem" : undefined,
               }
             : position.includes("bottom") && footerVisible
-            ? {
-                bottom: `${footerHeight + 80}px`,
-                right: position.includes("right") ? "1rem" : undefined,
-                left: position.includes("left") ? "1rem" : undefined,
-              }
-            : undefined
+              ? {
+                  bottom: `${footerHeight + 80}px`,
+                  right: position.includes("right") ? "1rem" : undefined,
+                  left: position.includes("left") ? "1rem" : undefined,
+                }
+              : undefined
         }
         className={`fixed transition-all duration-300 ease-in-out z-40 max-w-[90vw] max-h-[85vh] ${getChatWindowPositionClasses(
-          position
+          position,
         )} ${getSizeClasses(size)} ${
           isOpen
             ? "opacity-100 translate-y-0 scale-100"
@@ -362,7 +362,7 @@ export function ChatbotWidget({
         <Button
           onClick={() => setIsOpen(!isOpen)}
           className={`fixed w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-50 bg-primary hover:bg-primary/90 cursor-pointer ${getButtonPositionClasses(
-            position
+            position,
           )}`}
           size="sm"
           style={
@@ -373,17 +373,17 @@ export function ChatbotWidget({
                   left: position.includes("left") ? "1rem" : undefined,
                 }
               : position.includes("bottom") && footerVisible
-              ? {
-                  bottom: `${footerHeight + 16}px`,
-                  right: position.includes("right") ? "1rem" : undefined,
-                  left: position.includes("left") ? "1rem" : undefined,
-                }
-              : undefined
+                ? {
+                    bottom: `${footerHeight + 16}px`,
+                    right: position.includes("right") ? "1rem" : undefined,
+                    left: position.includes("left") ? "1rem" : undefined,
+                  }
+                : undefined
           }
         >
           <Bot className="w-6 h-6 text-primary-foreground" />
         </Button>
       )}
-    </>
+    </div>
   );
 }

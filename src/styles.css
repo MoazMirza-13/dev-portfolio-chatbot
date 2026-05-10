@@ -1,11 +1,9 @@
-/* from shadcn docs */
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css" source("../src");
 
-@import "tw-animate-css";
-@import "tailwindcss" source("../src");
+@custom-variant dark (&:is(.dark .chatbot-widget-root *, .chatbot-widget-root.dark *));
 
-@custom-variant dark (&:is(.dark *));
-
-:root {
+.chatbot-widget-root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -41,7 +39,8 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-.dark {
+.dark .chatbot-widget-root,
+.chatbot-widget-root.dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.145 0 0);
@@ -65,7 +64,7 @@
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
+  --chart-5: oklch(0.645 0.246 16.441);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -116,27 +115,37 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-
-  /* Markdown-specific overrides */
-  .prose a {
-    @apply text-blue-500 underline;
+  .chatbot-widget-root {
+    color: var(--foreground);
+    font-family: var(--default-font-family);
+    line-height: 1.5;
   }
 
-  .prose code {
-    @apply bg-gray-500 text-gray-100 px-1 rounded;
+  .chatbot-widget-root * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+    box-sizing: border-box;
   }
 
-  .prose ul {
-    @apply list-disc pl-5;
+  .chatbot-widget-root .prose a {
+    color: var(--color-blue-500);
+    text-decoration-line: underline;
   }
 
-  .prose ol {
-    @apply list-decimal pl-5;
+  .chatbot-widget-root .prose code {
+    border-radius: 0.25rem;
+    background-color: var(--color-gray-500);
+    padding-inline: 0.25rem;
+    color: var(--color-gray-100);
+  }
+
+  .chatbot-widget-root .prose ul {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+  }
+
+  .chatbot-widget-root .prose ol {
+    list-style-type: decimal;
+    padding-left: 1.25rem;
   }
 }
