@@ -49,9 +49,20 @@ Always use getAllRepos/getRepoDetails for questions about repos, projects, or te
       temperature: 0.7,
     };
 
+    const models =
+      portfolio_config.models?.length && portfolio_config.models.length > 0
+        ? portfolio_config.models
+        : portfolio_config.model
+        ? [portfolio_config.model]
+        : [];
+
+    if (!models.length) {
+      return `⚠️ No AI model is configured. Please add at least one model in portfolio_config.`;
+    }
+
     // Step 1: Ask AI
     const response = await safeGenerateContent(portfolio_config.apiUrl, {
-      model: portfolio_config.model,
+      model: models,
       contents,
       config,
     });
@@ -118,7 +129,7 @@ Please summarize this in a **clear and concise form** (not too short), keep it *
 
       // Step 3: Final AI response
       const finalResponse = await safeGenerateContent(portfolio_config.apiUrl, {
-        model: portfolio_config.model,
+        model: models,
         contents,
         config: {
           systemInstruction: systemMessage,

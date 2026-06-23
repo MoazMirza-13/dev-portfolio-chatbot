@@ -1,5 +1,12 @@
 import type { GenerateContentResponse, GoogleGenAI } from "@google/genai";
 
+type GenerateContentOptions = Omit<
+  Parameters<GoogleGenAI["models"]["generateContent"]>[0],
+  "model"
+> & {
+  model: string | string[];
+};
+
 export function extractText(response: GenerateContentResponse) {
   if (response.text) return response.text;
   if (response.candidates?.length) {
@@ -26,35 +33,42 @@ export function limitedText(readme: string, maxLength = 2000) {
 
 export async function safeGenerateContent(
   apiUrl: string,
-  options: Parameters<GoogleGenAI["models"]["generateContent"]>[0] // infer first parameter type
+  options: GenerateContentOptions
 ) {
-  try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(options),
-    });
+  const models = Array.isArray(options.model) ? options.model : [options.model];
 
-    if (!response.ok) {
-      throw new Error(`Proxy error: ${response.status} ${response.statusText}`);
+  for (const model of models) {
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...options, model }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Proxy error for ${model}: ${response.status} ${response.statusText}`
+        );
+      }
+
+      return await response.json();
+    } catch (err) {
+      const error = err as Error;
+      console.error("Gemini error:", error.message);
     }
-
-    return await response.json();
-  } catch (err) {
-    const error = err as Error;
-    console.error("Gemini error:", error.message);
-    return {
-      candidates: [
-        {
-          content: {
-            parts: [
-              {
-                text: "⚠️ Sorry, I couldn’t process that request right now. Try a different question or the model might get overloaded. Please try again later.",
-              },
-            ],
-          },
-        },
-      ],
-    };
   }
+
+  return {
+    candidates: [
+      {
+        content: {
+          parts: [
+            {
+              text: "⚠️ Sorry, I couldn’t process that request right now. Try a different question or the model might get overloaded. Please try again later.",
+            },
+          ],
+        },
+      },
+    ],
+  };
 }

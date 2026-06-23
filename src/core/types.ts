@@ -39,7 +39,8 @@ export type SimplifiedRepo = {
 export interface Config {
   apiUrl: string;
   githubUser: string;
-  model: string;
+  model?: string;
+  models?: string[];
   tone: string;
   personalInfo: {
     name: string;

@@ -58,7 +58,7 @@ The generated `portfolio_config.js` looks like this:
 ```js
 const API_URL = "api_endpoint_here";
 
-const MODEL_NAME = "gemini-2.5-flash-lite";
+const MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest"];
 const MODEL_TONE = "default"; // professional, funny, polite, friendly, moody, or default
 
 const GITHUB_USER = "your_github_username";
@@ -78,7 +78,7 @@ const PERSONAL_INFO = {
 
 export const portfolio_config = {
   apiUrl: API_URL,
-  model: MODEL_NAME,
+  models: MODELS,
   tone: MODEL_TONE,
   personalInfo: PERSONAL_INFO,
   githubUser: GITHUB_USER,
